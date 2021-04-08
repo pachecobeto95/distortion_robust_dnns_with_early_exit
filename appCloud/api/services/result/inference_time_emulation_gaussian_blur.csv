@@ -1,0 +1,8 @@
+,distortion_lvl,distortion_type,inference_time,p_tar
+0,0.0,gaussian_blur,0.3720004558563232,0.7
+1,0.0,gaussian_blur,0.2499959468841552,0.7
+2,0.0,gaussian_blur,0.3999984264373779,0.7
+3,0.0,gaussian_blur,0.3779995441436767,0.7
+4,0.0,gaussian_blur,0.3593709468841553,0.7
+5,0.0,gaussian_blur,0.40625,0.7
+6,0.0,gaussian_blur,0.3593723773956299,0.7
