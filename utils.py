@@ -1,137 +1,135 @@
-from pthflops import count_ops
-import torch.nn as nn
-import torch
-import pandas as pd
+import os, config
+import requests, sys, json, os
 import numpy as np
-
-def save_model(model, best,n_branches, optimizer, savePath):
-  save_dict = {
-      'epoch': best["epoch"],
-      'model_state_dict': model.state_dict(),
-      'optimizer_state_dict': optimizer.state_dict(),
-      "val_acc": best['val_acc'],
-      }
-  for i in range(n_branches+1):
-    save_dict["train_acc_%s"%(i+1)] = best["train_acc_%s"%(i+1)]
-    save_dict["val_acc_%s"%(i+1)] = best["val_acc_%s"%(i+1)]    
-  
-  torch.save(save_dict, savePath)
-
-def save_history(df, result, savePath):
-  df = df.append(result, ignore_index=True)
-  df.to_csv(savePath)
-
-def set_parameter_requires_grad(model, feature_extraction):
-  if (feature_extraction):
-    for param in model.parameters():
-      param.requires_grad  = False
-
-  return model
-
-def countFlop(model, input_size):
-  x = torch.rand(1, input_size[0], input_size[1], input_size[2])
-  ops, all_data = count_ops(model, x, print_readable=False, verbose=True)
-  flop_idx_dict = {i: 0 for i in range(len(all_data))}
-  flop_layer_dict = {}
-
-  total_flop = 0
-  for i, layer in enumerate(all_data):
-    total_flop += layer[1]/ops
-    flop_idx_dict[i] = total_flop
-    flop_layer_dict[layer[0].split("/")[-2]] = total_flop
-
-  return flop_idx_dict, flop_layer_dict
-
-class Flatten(nn.Module):
-  def __init__(self):
-    super(Flatten, self).__init__()
-  def forward(self, x):
-    return x.view(x.size(0), -1)
+from PIL import Image
+import pandas as pd
+import cv2
+import torch
+import torchvision.transforms as transforms
+from torchvision import datasets
 
 
-def trainBranches(model, train_loader, optimizer, epoch, device, n_branches, weight_loss):
-  """
-  trains the branchynet model.
+class MapDataset(torch.utils.data.Dataset):
+  def __init__(self, dataset, transformation):
+    self.dataset = dataset
+    self.transformation = transformation
 
-  * model:         branchynet model
-  * train_loader:  training dataset, containing input images and its labels
-  * optimizer:     optimizer operator to adjust the model parameters. 
-  """
-  losses = []
-  model.to(device)
-  model.train()
-  acc_train = [0]*(n_branches + 1)
-  batch = {'train_acc_%s'%(i): [] for i in range(1, n_branches+1+1)}
+  def __getitem__(self, index):
+    x = self.transformation(self.dataset[index][0])
+    y = self.dataset[index][1]
+    return x, y
 
-  loss_fn = nn.CrossEntropyLoss()
-  for i, (data, target) in enumerate(train_loader):
-    data, target = data.to(device), target.to(device, dtype=torch.int64)
-    optimizer.zero_grad()
-
-    pred_list, conf_list, class_list = model(data)
-    loss = 0 
-    for i, (pred, conf, inf_label) in enumerate(zip(pred_list, conf_list, class_list)):
-      loss += weight_loss[i]*loss_fn(pred, target)
-      acc_train[i] = inf_label.eq(target.view_as(inf_label)).sum().item()/data.size(0)
-      batch["train_acc_%s"%(i+1)].append(acc_train[i])
-      
-    losses.append(float(loss.item()))
-    loss.backward()
-    optimizer.step()
-
-  result = {'train_loss': round(np.mean(losses), 4)}
-
-  print('Train avg loss: {:.4f}'.format(result['train_loss']))
-
-  info = ""
-  for i, (key, value) in enumerate(batch.items()):
-    result[key] = round(np.mean(batch["train_acc_%s"%(i+1)]), 4)
-    info += "Acc Branch %s: %s "%(i+1, round(np.mean(batch["train_acc_%s"%(i+1)]), 4))
-  print(info)
-  return result
-
-
-def evalBranches(model, val_loader, epoch, n_branches, device, ptar):
-  """
-  Validates the model.
-
-  Arguments are
-  * model                  defines the model evaluated
-  * eval_loader            evaluation dataset, containing input images and its labels   
-  * epoch             (int) number of the current epoch.
-  This validates the model and prints the results of each epochs.
-  Finally, it returns average accuracy, loss.
-  """
-  loss_fn = nn.CrossEntropyLoss()
-  exit_points = np.zeros(n_branches + 1)
-  correct_branches = np.zeros(n_branches + 1)
-  correct = 0
-  model.to(device)
-  model.eval()
-  val_loss_list = []
-  result = {}
-  with torch.no_grad():
-    for i, (data, target) in enumerate(val_loader):
-      data, target = data.to(device), target.to(device, dtype=torch.int64)
-      pred, infered_conf, infered_class, exit_idx = model(data, p_tar=ptar, train=False)
-      exit_points[exit_idx] += 1
-      total_samples = data.size(0)
-      #correct += infered_class.eq(target.view_as(infered_class)).sum().item()
-      correct_branches[exit_idx] += infered_class.eq(target.view_as(infered_class)).sum().item()
-      loss = loss_fn(pred, target)
-      val_loss_list.append(loss.item())
-
-  acc_branches = correct_branches/exit_points
-  acc = sum(correct_branches)/sum(exit_points)
-  result['val_loss'] = round(np.mean(val_loss_list), 4)
-  result['val_acc'] = acc
-  for i in range(n_branches+1):
-     result["val_acc_%s"%(i+1)] = acc_branches[i]
-  
-  return result
+  def __len__(self):
+    return len(self.dataset)
 
 
 
+class LoadDataset():
+  def __init__(self, input_dim, batch_size_test, normalization=True):
+    self.input_dim = input_dim
+    self.batch_size_test = batch_size_test
+    self.savePath_idx_dataset = None
+
+    mean=[0.457342265910642, 0.4387686270106377, 0.4073427106250871]
+    std=[0.26753769276329037, 0.2638145880487105, 0.2776826934044154]
+
+    transformation_valid_list = [transforms.Resize(330), 
+                                          transforms.CenterCrop(300), 
+                                          transforms.ToTensor()]
+    
+    if (normalization):
+      transformation_train_list.append(transforms.Normalize(mean = mean, std = std))
+      transformation_valid_list.append(transforms.Normalize(mean = mean, std = std))
+
+        
+    self.transformations_valid = transforms.Compose(transformation_valid_list)
+
+  def set_idx_dataset(self, save_idx_path):
+    self.savePath_idx_dataset = save_idx_path
+
+
+  def caltech(self, root_path, split_train=0.8):
+
+    dataset = datasets.ImageFolder(root_path)
+
+    val_dataset = MapDataset(dataset, self.transformations_valid)
+
+
+    if (self.savePath_idx_dataset is not None):
+      data = np.load(self.savePath_idx_dataset, allow_pickle=True)
+      train_idx, valid_idx = data[0], data[1]
+      indices = list(range(len(valid_idx)))
+      split = int(np.floor(0.5 * len(valid_idx)))
+      valid_idx, test_idx = valid_idx[:split], valid_idx[split:]
+
+    else:
+      nr_samples = len(dataset)
+      indices = list(range(nr_samples))
+      split = int(np.floor(split_train * nr_samples))
+      np.random.shuffle(indices)
+      rain_idx, test_idx = indices[:split], indices[split:]
+
+
+    test_data = torch.utils.data.Subset(val_dataset, indices=test_idx)
+
+    testLoader = torch.utils.data.DataLoader(test_data, batch_size=self.batch_size_test, 
+                                              num_workers=4)
+
+
+    return testLoader
+
+
+class ImageDistortion(object):
+  def __init__(self, distortion_type, normalization=True):
+    self.norm_transformation = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    self.distortion_type = distortion_type
+    self.normalization = normalization
+
+  def gaussian_blur(self, img_batch, blur_std):
+    blurred_img_batch = img_batch
+    if (blur_std > 0):
+      blurred_img_batch = []
+      for img in img_batch:
+        img_np = np.array(transforms.ToPILImage()(img))
+        blur = cv2.GaussianBlur(img_np, (4*blur_std+1, 4*blur_std+1), blur_std, None, blur_std, cv2.BORDER_CONSTANT)
+        blurred_img_batch.append(transforms.ToTensor()(blur))
+      blurred_img_batch = torch.stack(blurred_img_batch)
+    
+
+    if (self.normalization):
+        return self.norm_transformation(blurred_img_batch)
+    else:
+        return blurred_img_batch
+
+  def gaussian_noise(self, img_batch, noise_lvl):
+    noise_img_batch = img_batch
+    if (noise_lvl > 0):
+      noise_img_batch = []
+      for img in img_batch:
+        img_np = np.array(transforms.ToPILImage()(img))
+        noise_img = img_np + np.random.normal(0, noise_lvl, (img_np.shape[0], img_np.shape[1], img_np.shape[2]))
+
+        noise_img_batch.append(transforms.ToTensor()(np.uint8(noise_img)))
+      noise_img_batch = torch.stack(noise_img_batch)
+
+    if (self.normalization):
+        return self.norm_transformation(noise_img_batch).float()
+    else:
+        return noise_img_batch.float()
+
+  def pristine(self, img_batch, std=None):
+    if (self.normalization):
+        return self.norm_transformation(img_batch)
+    else:
+    	return img_batch
+
+  def applyDistortion(self):
+    def func_not_found():
+      print("No distortion %s is found"%(self.distortion_type))
+      sys.exit()
+    
+    func_name = getattr(self, self.distortion_type, func_not_found)
+    return func_name
 
 
 
