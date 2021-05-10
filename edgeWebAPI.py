@@ -9,4 +9,4 @@ iNITIALIZE EDGE API
 
 # configuring Host and Port from configuration files. 
 app.debug = config.DEBUG
-app.run(host=config.HOST_EDGE, port=config.PORT_EDGE)
+app.run(host='0.0.0.0', port=config.PORT_EDGE)
