@@ -1,11 +1,11 @@
 import os, pickle, requests, sys, config, time
 import numpy as np, json
 import torchvision.models as models
-import torch, cv2
+import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 from .mobilenet import B_MobileNet
-from PIL import Image
+from PIL import Image, ImageOps
 import pandas as pd
 
 def load_model(model, modelPath, device):
@@ -19,7 +19,7 @@ def init_b_mobilenet():
 	device = 'cpu'
 	pretrained = False
 	n_branches = 3
-	distortion_classes = ["gaussian_blur", "gaussian_blur", "gaussian_noise", "pristine"]
+	distortion_classes = ["gaussian_blur", "gaussian_noise", "pristine"]
 
 
 	b_mobilenet_pristine = B_MobileNet(n_classes, pretrained, n_branches, img_dim, exit_type, device)
@@ -30,13 +30,13 @@ def init_b_mobilenet():
 	blur_model = load_model(b_mobilenet_blur, config.EDGE_BLUR_MODEL_PATH, device)
 	noise_model = load_model(b_mobilenet_noise, config.EDGE_NOISE_MODEL_PATH, device)
 
-	return [blur_model, blur_model, noise_model, pristine_model], distortion_classes
+	return [blur_model, noise_model, pristine_model], distortion_classes
 
 def read_temperature():
 	df_pristine = pd.read_csv("./appEdge/api/services/models/temperature_calibration_pristine_b_mobilenet_21.csv")
 	df_blur = pd.read_csv("./appEdge/api/services/models/temperature_calibration_gaussian_blur_b_mobilenet_21.csv")
 	df_noise = pd.read_csv("./appEdge/api/services/models/temperature_calibration_gaussian_noise_b_mobilenet_21.csv")
-	return [df_blur.iloc[0].values, df_blur.iloc[0].values, df_noise.iloc[0].values, df_pristine.iloc[0].values]
+	return [df_blur.iloc[0].values, df_noise.iloc[0].values, df_pristine.iloc[0].values]
 
 class DistortionNet(nn.Module):
 	def __init__(self):
@@ -47,7 +47,7 @@ class DistortionNet(nn.Module):
 			nn.Conv2d(16, 1, kernel_size=1, stride=1),
 			nn.MaxPool2d(2, stride=2))
 
-		self.classifier = nn.Linear(729, 4)
+		self.classifier = nn.Linear(729, 3)
 
 	def forward(self, x):
 		x = self.features(x)
@@ -66,7 +66,8 @@ def loadDistortionClassifier():
 
 
 def apply_fourier_transformation(img):
-	gray_img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
+	#gray_img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
+	gray_img = np.array(ImageOps.grayscale(img))
 	dft = np.fft.fft2(gray_img)
 	fshift = np.fft.fftshift(dft)
 	magnitude_spectrum = 20*np.log(np.abs(fshift))
@@ -82,7 +83,7 @@ def inferenceTransformation(img):
 
 	data_transformation = transforms.Compose([
 		transforms.ToPILImage(),
-		transforms.Resize(330), 
+		transforms.Resize(330),
 		transforms.CenterCrop(300),
 		transforms.ToTensor(),
 		transforms.Normalize(mean=mean, std=std)])
@@ -95,7 +96,7 @@ def inferenceTransformationDistortionClassifier(img_numpy):
 
 	data_transformation = transforms.Compose([
 		transforms.ToPILImage(),
-		transforms.Resize(224), 
+		transforms.Resize(224),
 		transforms.CenterCrop(224),
 		transforms.ToTensor(),
 		transforms.ToPILImage()])
@@ -194,3 +195,8 @@ def compute_p_tar_list(nr_samples_edge, nr_branch_2, nr_branch_3):
 	return p_tar_list
 
 
+class NetworkConfiguration():
+	def set_configuration(self, bandwidth, latency, city):
+		self.bandwidth = bandwidth
+		self.latency = latency
+		self.city = city
