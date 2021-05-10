@@ -1,0 +1,22 @@
+FROM python:3.8.9
+
+RUN mkdir /appEdge
+
+WORKDIR /appEdge
+
+COPY . .
+
+RUN python -m pip install pip
+RUN pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org --default-timeout=100 -r requirements.txt
+RUN apt-get update
+RUN apt-get install ffmpeg libsm6 libxext6 -y
+RUN apt-get install iperf
+RUN apt-get install iperf3 -y
+RUN apt-get install net-tools -y
+RUN apt-get install nano
+RUN pip install torch-1.7.1+cu101-cp38-cp38-linux_x86_64.whl
+RUN pip install torchvision-0.8.2+cu101-cp38-cp38-linux_x86_64.whl
+RUN pip install pthflops
+RUN pip install opencv_python-4.5.1.48-cp38-cp38-manylinux2014_x86_64.whl
+
+CMD ["python", "edgeWebAPI.py"]
