@@ -17,11 +17,11 @@ def init_b_mobilenet():
 	n_classes = 258
 	img_dim = 300
 	exit_type = None
-	device = 'cpu'
+	device = torch.device("cpu")
 	pretrained = False
-	n_branches = 3	
+	n_branches = 3
 
-	distortion_class_list = ["gaussian_blur", "gaussian_blur", "gaussian_noise", "pristine"]
+	distortion_class_list = ["gaussian_blur", "gaussian_noise", "pristine"]
 
 	b_mobilenet_pristine = B_MobileNet(n_classes, pretrained, n_branches, img_dim, exit_type, device)
 	b_mobilenet_blur = B_MobileNet(n_classes, pretrained, n_branches, img_dim, exit_type, device)
@@ -31,7 +31,7 @@ def init_b_mobilenet():
 	blur_model = load_model(b_mobilenet_blur, config.CLOUD_BLUR_MODEL_PATH, device)
 	noise_model = load_model(b_mobilenet_noise, config.CLOUD_NOISE_MODEL_PATH, device)
 
-	return [blur_model, blur_model, noise_model, pristine_model], distortion_class_list 
+	return [blur_model, noise_model, pristine_model], distortion_class_list
 
 
 def select_distorted_model(pristineModel, blurModel, noiseModel, distortion_type):
@@ -49,7 +49,7 @@ def read_temperature():
     df_pristine = pd.read_csv("./appCloud/api/services/models/temperature_calibration_pristine_b_mobilenet_21.csv")
     df_blur = pd.read_csv("./appCloud/api/services/models/temperature_calibration_gaussian_blur_b_mobilenet_21.csv")
     df_noise = pd.read_csv("./appCloud/api/services/models/temperature_calibration_gaussian_noise_b_mobilenet_21.csv")
-    return [df_blur.iloc[0].values, df_blur.iloc[0].values, df_noise.iloc[0].values, df_pristine.iloc[0].values]
+    return [df_blur.iloc[0].values, df_noise.iloc[0].values, df_pristine.iloc[0].values]
 
 
 
@@ -99,7 +99,12 @@ class BranchesModelWithTemperature(nn.Module):
         return logits / temperature
 
 
-
+class NetworkConfiguration():
+	def set_configuration(self, bandwidth, latency, distortion_lvl, robust):
+		self.bandwidth = bandwidth
+		self.latency = latency
+		self.distortion_lvl = distortion_lvl
+		self.robust = robust
 
 
 
