@@ -7,4 +7,4 @@ iNITIALIZE Cloud API
 
 # configuring Host and Port from configuration files. 
 app.debug = config.DEBUG
-app.run(host=config.HOST_CLOUD, port=config.PORT_CLOUD)
+app.run(host='0.0.0.0', port=config.PORT_CLOUD)
