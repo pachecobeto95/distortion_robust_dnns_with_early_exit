@@ -5,6 +5,7 @@ from PIL import Image
 import pandas as pd
 import argparse
 from utils import LoadDataset, ImageDistortion
+from torchvision import datasets, transforms
 
 # Input Arguments. Hyperparameters configuration
 
@@ -12,11 +13,13 @@ def distortionConvertion(test_loader, distortion, distortion_type, savePath):
 
 	for distortion_lvl in distortion_list:
 		print("Distortion Level: %s"%(distortion_lvl))
+		savePath2 = os.path.join(savePath, str(distortion_lvl))
+		if (not os.path.exists(savePath2)):
+			os.makedirs(savePath2)
 		for i, (data, _) in enumerate(test_loader, 1):
 			distorted_img = distortion(data, distortion_lvl)
 			img_pil = transforms.ToPILImage()(distorted_img[0])
-			img_pil.save(os.path.join(savePath, "%s.jpg"%(i)))
-			sys.exit()
+			img_pil.save(os.path.join(savePath2, "%s.jpg"%(i)))
 
 
 
