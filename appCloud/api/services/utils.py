@@ -17,7 +17,7 @@ def init_b_mobilenet():
 	n_classes = 258
 	img_dim = 300
 	exit_type = None
-	device = torch.device("cpu")
+	device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 	pretrained = False
 	n_branches = 3
 
@@ -54,11 +54,12 @@ def read_temperature():
 
 
 class BranchesModelWithTemperature(nn.Module):
-    def __init__(self, model, temperature):
+    def __init__(self, model, temperature, device):
         super(BranchesModelWithTemperature, self).__init__()
         self.model = model
         self.temperature = temperature
         self.softmax = nn.Softmax(dim=1)
+	self.device = device
 
     def forward(self, x, conf_list, p_tar=0.5):
         return self.forwardEval(x, conf_list, p_tar)
@@ -96,7 +97,7 @@ class BranchesModelWithTemperature(nn.Module):
         # Expand temperature to match the size of logits
         
         temperature = nn.Parameter(torch.from_numpy(np.array([self.temperature[i]]))).unsqueeze(1).expand(logits.size(0), logits.size(1))
-        return logits / temperature
+        return logits / temperature.to(self.device)
 
 
 class NetworkConfiguration():
