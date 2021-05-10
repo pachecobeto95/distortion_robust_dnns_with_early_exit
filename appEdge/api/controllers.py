@@ -3,10 +3,11 @@ import json, os, time, sys, config
 #from .services.edgeProcessing import decision_maker, monitor_bandwidth
 from .services import edgeProcessing
 #from apscheduler.schedulers.background import BackgroundScheduler
-import atexit, torch
-
+import atexit, torch, requests
+from .services.edgeProcessing import net_config
 
 api = Blueprint("api", __name__, url_prefix="/api")
+
 
 
 # Define url for the user send the image
@@ -19,13 +20,13 @@ def edge_receive_img():
 
 	fileImg = request.files["img"]
 	posted_data = json.load(request.files['data'])
-	p_tar = posted_data["p_tar"]
 	distortion_type = posted_data["distortion_type"]
 	distortion_lvl = posted_data["distortion_lvl"]
+	robust = posted_data['robust']
 
 
 	#Once reveived, the edge devices runs a DNN inference
-	result = edgeProcessing.dnnInference(fileImg, p_tar, distortion_type, distortion_lvl)
+	result = edgeProcessing.dnnInference(fileImg, distortion_type, distortion_lvl, robust)
 
 	if (result["status"] ==  "ok"):
 		return jsonify(result), 200
@@ -34,6 +35,30 @@ def edge_receive_img():
 		return jsonify(result), 500
 
 
+@api.route("/edge/starter_channel", methods=["POST"])
+def starter_channel_edge():
+	img = request.files["img"]
+	result = sendToCloud(img)
+	return jsonify(result), 200
+
+def sendToCloud(img):
+	files = {"img": img}
+	r = requests.post(config.URL_CLOUD+"/api/cloud/starter_channel_cloud", files=files, timeout=10)
+	if ((r.status_code != 200) or (r.status_code != 201)):
+		result = {"status": "error"}
+	else:
+		result = {"status": "ok"}
+	return result
+
+@api.route("/edge/edge_update_network_config", methods=["POST"])
+def updateNetwork():
+	bandwidth = request.json["bandwidth"]
+	latency = request.json["latency"]
+	city = request.json["city"]
+	net_config.set_configuration(bandwidth, latency, city)
+	os.system("tc qdisc del dev eth0 root")
+	os.system("tc qdisc add dev eth0 root netem delay %sms rate %smbit"%(latency, bandwidth))
+	return jsonify({"status": "ok"}), 200
 
 @api.route('/edge/edge_emulator', methods=["POST"])
 def edgeEmulator():
@@ -45,13 +70,13 @@ def edgeEmulator():
 	fileImg = request.files['img']
 	posted_data = json.load(request.files['data'])
 
-	p_tar = posted_data["p_tar"]
 	nr_branch_2 = posted_data["nr_branch_2"] 
 	nr_branch_3 = posted_data["nr_branch_3"]
 	distortion_type = posted_data["distortion_type"]
 	distortion_lvl = posted_data["distortion_lvl"]
+	robust = posted_data["robust"]
 
-	result = edgeProcessing.dnnInferenceEmulation(fileImg, p_tar, nr_branch_2, nr_branch_3, distortion_type, distortion_lvl)
+	result = edgeProcessing.dnnInferenceEmulation(fileImg, nr_branch_2, nr_branch_3, distortion_type, distortion_lvl, robust)
 
 
 	if (result["status"] ==  "ok"):
