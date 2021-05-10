@@ -60,9 +60,9 @@ def saveInferenceTime(inference_time, p_tar, distortion_type, distortion_lvl):
 
 
 def dnnInferenceEmulation(feature, conf_list, distortion_type):
-
-	feature = torch.Tensor(feature)
-	output, conf_list, inf_class = b_mobileNetInferenceCloudEmulation(feature, conf_list, distorted_model_list, distortion_type)
+	device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+	feature = torch.Tensor(feature).to(device)
+	output, conf_list, inf_class = b_mobileNetInferenceCloudEmulation(feature, conf_list, distorted_model_list, distortion_type, device)
 
 
 	return {"status": "ok"}
@@ -84,13 +84,12 @@ def saveInferenceTimeEmulation(inference_time, distortion_class):
 	df = df.append(pd.Series(result), ignore_index=True)
 	df.to_csv(result_path) 
 
-def b_mobileNetInferenceCloudEmulation(tensor, conf_list, distorted_model_list, distortion_type):
+def b_mobileNetInferenceCloudEmulation(tensor, conf_list, distorted_model_list, distortion_type, device):
 	distortedModel = distorted_model_list[distortion_type]
 	temperature = distorted_temp_list[distortion_type]
-	scaled_model = BranchesModelWithTemperature(distortedModel, temperature)
+	scaled_model = BranchesModelWithTemperature(distortedModel, temperature, device).to(device)
 	scaled_model.eval()
 
 	with torch.no_grad():
-		output, conf_list, infer_class = scaled_model(tensor.float(), conf_list, p_tar=config.P_TAR)	
-	
+		output, conf_list, infer_class = scaled_model(tensor.float(), conf_list, p_tar=config.P_TAR)
 	return output, conf_list, infer_class
