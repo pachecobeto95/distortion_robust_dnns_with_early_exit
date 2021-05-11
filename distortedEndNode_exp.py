@@ -93,8 +93,9 @@ def sendNetworkConfCloud(bandwidth, latency):
 def sendDistortedImage(test_loader, distortedData, distortion, distortion_type, distortion_lvl, datasetPath, savePath, robust):
 	dataset_dir_list = os.listdir(datasetPath)
 
-	nr_samples_edge_branch2, nr_samples_edge_branch3 = computeNrEdge(distortedData, len(dataset_dir_list), distortion_lvl)
-	
+	#nr_samples_edge_branch2, nr_samples_edge_branch3 = computeNrEdge(distortedData, len(dataset_dir_list), distortion_lvl)
+	nr_samples_edge_branch2, nr_samples_edge_branch3 = computeNrEdge(distortedData, 1000, distortion_lvl)
+
 	for i, img in enumerate(dataset_dir_list, 1):
 		print(i, len(dataset_dir_list))
 		filePath = os.path.join(datasetPath, img)
