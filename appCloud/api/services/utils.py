@@ -54,51 +54,46 @@ def read_temperature():
 
 
 class BranchesModelWithTemperature(nn.Module):
-    def __init__(self, model, temperature, device):
-        super(BranchesModelWithTemperature, self).__init__()
-        self.model = model
-        self.temperature = temperature
-        self.softmax = nn.Softmax(dim=1)
-	self.device = device
+	def __init__(self, model, temperature, device):
+		super(BranchesModelWithTemperature, self).__init__()
+		self.model = model
+		self.temperature = temperature
+		self.softmax = nn.Softmax(dim=1)
+		self.device = device
 
-    def forward(self, x, conf_list, p_tar=0.5):
-        return self.forwardEval(x, conf_list, p_tar)
-    
-    def forwardEval(self, x, conf_list, p_tar):
+	def forward(self, x, conf_list, p_tar=0.5):
+ 		return self.forwardEval(x, conf_list, p_tar)
 
-        output_list, conf_list, class_list  = [], [], []
+	def forwardEval(self, x, conf_list, p_tar):
 
-        x = self.model.stages[-1](x)
-        x = x.mean(3).mean(2)
+		output_list, conf_list, class_list  = [], [], []
 
-        output = self.temperature_scale(self.model.fully_connected(x), -1)
-        conf, infered_class = torch.max(self.softmax(output), 1)
-    
-        conf_list.append(conf.item())
-        #class_list.append(infered_class)
-        output_list.append(output)
-    
-        if (conf.item() >= p_tar):
-           return output, conf.item(), infered_class
-    
-        else:
-           max_conf = np.argmax(conf_list)
-           return output, conf_list[max_conf], infered_class
+		x = self.model.stages[-1](x)
+		x = x.mean(3).mean(2)
+
+		output = self.temperature_scale(self.model.fully_connected(x), -1)
+		conf, infered_class = torch.max(self.softmax(output), 1)
+
+		conf_list.append(conf.item())
+		#class_list.append(infered_class)
+		output_list.append(output)
+		if (conf.item() >= p_tar):
+			return output, conf.item(), infered_class
+		else:
+			max_conf = np.argmax(conf_list)
+			return output, conf_list[max_conf], infered_class
 
 
     #def forwardEmulation(self, x, p_tar_list):
 
 
-      
-    def temperature_scale(self, logits, i):
-        """
-        Perform temperature scaling on logits
-        """
-        # Expand temperature to match the size of logits
-        
-        temperature = nn.Parameter(torch.from_numpy(np.array([self.temperature[i]]))).unsqueeze(1).expand(logits.size(0), logits.size(1))
-        return logits / temperature.to(self.device)
-
+	def temperature_scale(self, logits, i):
+		"""
+		Perform temperature scaling on logits
+		"""
+		# Expand temperature to match the size of logits
+		temperature = nn.Parameter(torch.from_numpy(np.array([self.temperature[i]]))).unsqueeze(1).expand(logits.size(0), logits.size(1))
+		return logits / temperature.to(self.device)
 
 class NetworkConfiguration():
 	def set_configuration(self, bandwidth, latency, distortion_lvl, robust):
