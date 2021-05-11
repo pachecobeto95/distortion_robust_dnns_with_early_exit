@@ -4,6 +4,17 @@ apt update
 apt install python3-pip
 pip install -r requirements.txt
 pip install kaggle
+mv ./.kaggle /root/
+kaggle datasets download -d jessicali9530/caltech256
+sudo apt-get install unzip
+mkdir dataset
+unzip ./caltech256.zip -d ./dataset
+mkdir ./dataset/distorted_dataset
+
+python distortionConverter.py --distortion_type "pristine"
+python distortionConverter.py --distortion_type "gaussian_blur"
+python distortionConverter.py --distortion_type "gaussian_noise"
+
 curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh
 
