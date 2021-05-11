@@ -1,10 +1,11 @@
 #!/bin/bash
 
 apt update
-#apt install python3-pip
-#pip install -r requirements.txt
-#curl -fsSL https://get.docker.com -o get-docker.sh
-#sh get-docker.sh
+apt install python3-pip
+pip install -r requirements.txt
+pip install kaggle
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
 
 #apt-get update
 #apt-get install apt-transport-https
