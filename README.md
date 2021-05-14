@@ -11,7 +11,7 @@ pip install -r requirements.txt
 If you have any questions on this repository or the related paper, please feel free to send me an email. Email address: pacheco AT gta.ufrj.br. 
 
 ## Table of contents
-* [Distorted Dataset](#distorted_dataset)
+* [Distorted Datasets](#distorted-datasets)
 
 
 ## Distorted Datasets
