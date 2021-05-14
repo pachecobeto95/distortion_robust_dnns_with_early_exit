@@ -12,11 +12,12 @@ If you have any questions on this repository or the related paper, please feel f
 
 ## Table of contents
 * [Distorted Datasets](#distorted-datasets)
-
+* [Download Distorted Dataset](#download-distorted-dataset)
+* [Download Distorted Dataset](#generate-distorted-dataset)
 
 ## Distorted Datasets
 
-In this paper, we use the Caltech-256 dataset, which contains pristine (i.e., high-quality) images of common objects, such as motorbikes, airplanes, and shoes. This dataset has 257 classes with more than 80 instances in each. To evaluate the impact of image distortion on early-exits DNNs, we apply gaussian blur and gaussian noise into the images, using OpenCV and Numpy Python libraries. Hence, we generate a new Caltech-256 dataset, containing blurred and noisy images. For each distortion type, we consider five distortion levels.
+In this paper, we use the Caltech-256 dataset, which contains pristine (i.e., high-quality) images of common objects, such as motorbikes, airplanes, and shoes. This dataset has 257 classes with more than 80 instances in each. To evaluate the impact of image distortion on early-exits DNNs, we apply gaussian blur and gaussian noise into the images, using OpenCV and Numpy Python libraries. Hence, we generate a new Caltech-256 dataset, containing blurred and noisy images. For each distortion type, we consider five distortion levels. The [Section XX](#download-distorted-dataset) and [YY](#generate-distorted-dataset) presents the codes and procedures for downloading and generating the distorted datasets. 
 We describe next these two distortion types.
 
 #### Gaussian Blur
@@ -33,10 +34,20 @@ This work uses ![equation](https://latex.codecogs.com/png.image?\dpi{110}&space;
 
 ![Noisy Image](https://github.com/pachecobeto95/distortion_robust_dnns_with_early_exit/blob/main/imgs_read_me/noise_monkey_levels.png)
 
-The Section XX and YY presents the codes and procedures for downloading and generating the noisy dataset. 
 
 
 ## Download Distorted Dataset
+
+The original Caltech-256 dataset containing only pristine images can be download in the following link: http://www.vision.caltech.edu/Image_Datasets/Caltech256/256_ObjectCategories.tar
+
+The blurred dataset, containing Caltech-256's images with several blur levels, can be downloaded in the following link: https://drive.google.com/drive/folders/1-3mB9mYqZ0ebzTdhTuF0VCil_Jm2OzH3?usp=sharing.
+
+The noisy dataset, containing Caltech-256's images with several noise levels, can be downloaded in the following link: https://drive.google.com/drive/folders/1-1r8tPs70FFk7Q84pJYGH1qrgIhDBRF_?usp=sharing. 
+
+## Generate Distorted Dataset
+
+
+
 
 
  
