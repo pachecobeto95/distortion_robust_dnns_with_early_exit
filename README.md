@@ -28,4 +28,11 @@ The following image shows an example of a blurred image from the dataset with se
 The Section XX and YY presents the codes and procedures for downloading and generating the blurred dataset. 
 
 #### Gaussian Noise
+This distortion may appear in an image due to poor illumination conditions and the use of a low-quality image sensor. We use ![equation](https://latex.codecogs.com/svg.image?\sigma_{GN}) to define the noise distortion level, so that a higher ![equation](https://latex.codecogs.com/svg.image?\sigma_{GN}) implies a noisier image.
+This work uses ![equation](https://latex.codecogs.com/png.image?\dpi{110}&space;\sigma_{GB}\in(1,&space;2,&space;3,&space;4,&space;5)). We use Numpy library to apply gaussian noise into the images. The following image shows an example of a noisy image from the dataset with several noise levels.
+
+![Noisy Image](https://github.com/pachecobeto95/distortion_robust_dnns_with_early_exit/blob/main/imgs_read_me/blur_monkey_levels.png)
+
+
+
 
