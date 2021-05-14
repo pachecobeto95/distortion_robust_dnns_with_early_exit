@@ -23,3 +23,9 @@ We describe next these two distortion types.
 This image distortion occurs in an image when the camera is out of focus or in a foggy environment. The parameter ![equation](https://latex.codecogs.com/svg.image?\sigma_{GB}) defines the blur distortion level, so that a higher ![equation](https://latex.codecogs.com/svg.image?\sigma_{GB}) implies a more blurred image. This work uses ![equation](https://latex.codecogs.com/svg.image?\sigma_{GB}) from 1 to 5, with a step of 1. For each blur level, the kernel size is given by ![equation](https://latex.codecogs.com/svg.image?4\cdot\sigma_{GB}&plus;1). As mentioned before, we use the OpenCV library to apply blur distortion into the images from Caltech-256. 
 The following image shows an example of a blurred image from the dataset with several blur levels.
 
+![Blurred Image](https://github.com/pachecobeto95/distortion_robust_dnns_with_early_exit/blob/main/imgs_read_me/blur_monkey_levels.png)
+
+The Section XX and YY presents the codes and procedures for downloading and generating the blurred dataset. 
+
+#### Gaussian Noise
+
