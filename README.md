@@ -40,9 +40,11 @@ This work uses ![equation](https://latex.codecogs.com/png.image?\dpi{110}&space;
 
 The original Caltech-256 dataset containing only pristine images can be download in the following link: http://www.vision.caltech.edu/Image_Datasets/Caltech256/256_ObjectCategories.tar
 
-The blurred dataset, containing Caltech-256's images with several blur levels, can be downloaded in the following link: https://drive.google.com/drive/folders/1-3mB9mYqZ0ebzTdhTuF0VCil_Jm2OzH3?usp=sharing.
+The blurred Caltech-256 can be downloaded in the following link: https://drive.google.com/drive/folders/1-3mB9mYqZ0ebzTdhTuF0VCil_Jm2OzH3?usp=sharing.
 
-The noisy dataset, containing Caltech-256's images with several noise levels, can be downloaded in the following link: https://drive.google.com/drive/folders/1-1r8tPs70FFk7Q84pJYGH1qrgIhDBRF_?usp=sharing. 
+The noisy Caltech-256 can be downloaded in the following link: https://drive.google.com/drive/folders/1-1r8tPs70FFk7Q84pJYGH1qrgIhDBRF_?usp=sharing. 
+
+For each distortion type, the distorted Caltech-256 dataset contains five different distortion level. 
 
 ## Generate Distorted Dataset
 
