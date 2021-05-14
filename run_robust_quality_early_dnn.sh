@@ -15,6 +15,9 @@ python distortionConverter.py --distortion_type "pristine"
 python distortionConverter.py --distortion_type "gaussian_blur"
 python distortionConverter.py --distortion_type "gaussian_noise"
 
+sudo apt-get install ffmpeg libsm6 libxext6 -y
+
+
 curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh
 
@@ -35,9 +38,10 @@ pip install torch==1.7.1+cu101 torchvision==0.8.2+cu101 torchaudio==0.7.2 -f htt
 wget https://files.pythonhosted.org/packages/2a/9a/ff309b530ac1b029bfdb9af3a95eaff0f5f45f6a2dbe37b3454ae8412f4c/opencv_python-4.5.1.48-cp38-cp38-manylinux2014_x86_64.whl
 wget https://download.pytorch.org/whl/cu101/torch-1.7.1%2Bcu101-cp38-cp38-linux_x86_64.whl
 wget https://download.pytorch.org/whl/cu101/torchvision-0.8.2%2Bcu101-cp38-cp38-linux_x86_64.whl
+pip install opencv_python-4.5.1.48-cp38-cp38-manylinux2014_x86_64.whl
 echo "Starting Edge Container"
-docker build -f DockerfileEdge -t recog_container:apiEdge10 .
-docker run -p 5000:5000 --cap-add=NET_ADMIN -dit recog_container:apiEdge10
+docker build -f DockerfileEdge -t recog_container:apiEdge .
+docker run -p 5000:5000 --cap-add=NET_ADMIN -dit recog_container:apiEdge
 echo "Completed Edge Container"
 sleep 5
 echo "Starting Cloud Server"
