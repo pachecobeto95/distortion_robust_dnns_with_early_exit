@@ -18,9 +18,6 @@ def sendData(filePath, nr_samples_edge_branch2, nr_samples_edge_branch3, distort
 	data_dict = {"nr_branch_2": nr_samples_edge_branch2, "nr_branch_3": nr_samples_edge_branch3,
 	"distortion_type": distortion_type, "distortion_lvl": distortion_lvl, "robust": robust}
 
-	#data_dict = {"nr_branch_2": 0, "nr_branch_3": 0,
-	#"distortion_type": distortion_type, "distortion_lvl": distortion_lvl, "robust": robust}
-
 	files = [
 	('img', (filePath, open(filePath, 'rb'), 'application/octet')),
 	('data', ('data', json.dumps(data_dict), 'application/json')),]
@@ -93,17 +90,13 @@ def sendNetworkConfCloud(bandwidth, latency):
 def sendDistortedImage(test_loader, distortedData, distortion, distortion_type, distortion_lvl, datasetPath, savePath, robust):
 	dataset_dir_list = os.listdir(datasetPath)
 
-	#nr_samples_edge_branch2, nr_samples_edge_branch3 = computeNrEdge(distortedData, len(dataset_dir_list), distortion_lvl)
-	nr_samples_edge_branch2, nr_samples_edge_branch3 = computeNrEdge(distortedData, 1000, distortion_lvl)
+	nr_samples_edge_branch2, nr_samples_edge_branch3 = computeNrEdge(distortedData, len(dataset_dir_list), distortion_lvl)
 
 	for i, img in enumerate(dataset_dir_list, 1):
 		print(i, len(dataset_dir_list))
 		filePath = os.path.join(datasetPath, img)
-		#start = time.time()
+
 		sendData(filePath, nr_samples_edge_branch2, nr_samples_edge_branch3, distortion_type, distortion_lvl, robust)
-		#end = time.time()
-		#rtt_end_device = end-start
-		#save_result(rtt_end_device, , savePath)
 
 
 
@@ -133,8 +126,7 @@ noise_list = [0, 5, 10, 20, 30, 40]
 pristine_list = [0]
 
 df_pristine = pd.read_csv(os.path.join(".", "results", "result_model_calib_pristine_b_mobilenet_eval_pristine_21_1.csv"))
-#df_blur = pd.read_csv(os.path.join(".", "results", "result2_model_calib_gaussian_blur_b_mobilenet_eval_gaussian_blur_21_freezing_3.csv"))
-df_blur = pd.read_csv("./results/total_model_calib_gaussian_blur_b_mobilenet_eval_gaussian_blur_21.csv")
+df_blur = pd.read_csv(os.path.join(".", "results", "result2_model_calib_gaussian_blur_b_mobilenet_eval_gaussian_blur_21_freezing_3.csv"))
 df_noise = pd.read_csv(os.path.join(".", "results", "result_model_calib_gaussian_noise_b_mobilenet_eval_gaussian_noise_21_freezing_3.csv"))
 df_standard = pd.read_csv(os.path.join(".", "results", "result_model_calib_pristine_b_mobilenet_eval_%s_21_1.csv"%(args.distortion_type)))
 
@@ -163,9 +155,6 @@ savePath = os.path.join(".", "inference_time_result_end_device")
 latency_list = [5, 90, 108]
 bandwidth_list = [93.6, 73.3, 60]
 city_list = ["sp", "fremont", "paris"]
-#latency_list = [108]
-#bandwidth_list = [60]
-#city_list = ["paris"]
 
 for bandwidth, latency, city  in zip(bandwidth_list, latency_list, city_list):
 	sendNetworkConfEdge(bandwidth, latency, city)
