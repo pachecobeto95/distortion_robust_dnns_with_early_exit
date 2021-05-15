@@ -13,6 +13,13 @@ pip install -r requirements.txt
 * [Distorted Datasets](#distorted-datasets)
 * [Download Distorted Dataset](#download-distorted-dataset)
 * [Generate Distorted Dataset](#generate-distorted-dataset)
+* [Distortion Classifier](#distortion-classifier)
+* [Early-exit DNNs with expert branches](#early-exit-dnns-with-expert-branches)
+* [Experiments](#experiments)
+* [Accuracy](#accuracy)
+* [Offloading Probability](#offloading-probability)
+* [End-to-end Latency](#end-to-end-latency)
+* [Acknowledgments][#acknowledgments]
 
 ## Distorted Datasets
 
@@ -69,6 +76,25 @@ Another option for generating the distorted datasets is to run bash script:
 sudo bash generate_distorted_dataset.sh
 ``` 
 
+## Distortion Classifier
+
+## Early-exit DNNs with expert branches
+
+## Experiments
+
+### Accuracy
+
+### Offloading Probability
+
+### End-to-end Latency
+
+## Acknowledgments
+
+The codes in this repository are developed by Roberto Pacheco. This work was done in Grupo de Teleinformática e Automação at Universidade Federal do Rio de Janeiro (UFRJ).
+This study was financed in part by the Coordenação de Aperfeiçoamento de Pessoal de Nível Superior - Brasil (CAPES). It was also supported by CNPq, FAPERJ Grants.
+
+Contact for more informations:
+* pacheco AT gta.ufrj.br
 
 
 
