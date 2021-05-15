@@ -13,7 +13,7 @@ If you have any questions on this repository or the related paper, please feel f
 ## Table of contents
 * [Distorted Datasets](#distorted-datasets)
 * [Download Distorted Dataset](#download-distorted-dataset)
-* [Download Distorted Dataset](#generate-distorted-dataset)
+* [Generate Distorted Dataset](#generate-distorted-dataset)
 
 ## Distorted Datasets
 
@@ -34,8 +34,6 @@ This work uses ![equation](https://latex.codecogs.com/png.image?\dpi{110}&space;
 
 ![Noisy Image](https://github.com/pachecobeto95/distortion_robust_dnns_with_early_exit/blob/main/imgs_read_me/noise_monkey_levels.png)
 
-
-
 ## Download Distorted Dataset
 
 The original Caltech-256 dataset containing only pristine images can be download in the following link: http://www.vision.caltech.edu/Image_Datasets/Caltech256/256_ObjectCategories.tar
@@ -48,10 +46,32 @@ For each distortion type, the distorted Caltech-256 dataset contains five differ
 
 ## Generate Distorted Dataset
 
+After downloading the original Caltech-256 dataset, we can generate the distorted dataset by running the Python script "distortionConverter.py", which can be downloaded via https://github.com/pachecobeto95/distortion_robust_dnns_with_early_exit/blob/main/distortionConverter.py. To generate the distorted datasets, follow the procedures below. 
+
+1. Before running script "distortionConverter.py", make sure you have installed the required libraries, installing the "requirements.txt" as shown above. 
+
+2. Create a directory called "dataset" and put the original Caltech-256 dataset into it. Next, create a directory "distorted_dataset" to storage the distorted dataset. To this end, run the following commands:   
+```
+mkdir dataset
+unzip ./caltech256.zip -d ./dataset
+mkdir ./dataset/distorted_dataset
+```
+
+3. Run the script "distortionConverter.py", as follows: ```python distortionConverter.py --distortion_type [DISTORTION_TYPE]```
+   - distortion_type: describes the type of distortion you would like to generate. There are two options of distortion types available. 
+     - "gaussian_blur" for blurred images;
+     - "gaussian_noise" for noisy images;
+     - "pristine" for pristine (i.e., high-quality) images.
+
+4. The generated distorted dataset will be save in the "./dataset/distorted_dataset" directory.
+
+Another option for generating the distorted datasets is to run bash script: 
+```
+sudo bash generate_distorted_dataset.sh
+``` 
 
 
 
 
- 
 
 
