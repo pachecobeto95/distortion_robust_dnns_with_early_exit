@@ -67,7 +67,7 @@ mkdir ./dataset/distorted_dataset
      - "gaussian_noise" for noisy images;
      - "pristine" for pristine (i.e., high-quality) images.
 
-4. The generated distorted dataset will be save in the "./dataset/distorted_dataset" directory. It is important to emphasize the the distortion levels of the generated distorted dataset are the same as those presented in the previous section and in the paper. However, you can them in the script for your needs.
+4. The generated distorted dataset will be save in the "./dataset/distorted_dataset" directory. It is important to emphasize the the distortion levels of the generated distorted dataset are the same as those presented in the previous section and in the paper. However, you can change them in the script for your needs.
 
 Another option for generating the distorted datasets is to run bash script: 
 ```
@@ -100,18 +100,60 @@ To generate the composite dataset of Fourier spectrum for distorted images used 
 
 ## Early-exit DNNs with expert branches
 
+![Early-exit DNN with expert branches](https://github.com/pachecobeto95/distortion_robust_dnns_with_early_exit/blob/main/imgs_read_me/robust_dnn_with_early_exit_alternative.png)
+
+
 ## Experiments
 At this stage, this section presents the experiments developed to evaluate our proposal -- early-exit DNN with expert branches -- considering the accuracy, offloading probability, and end-to-end latency. 
 
-### Accuracy
-
-### Offloading Probability
+### Accuracy and Offloading Probability
 
 ### End-to-end Latency
 
+This experiment evaluates the end-to-end latency, considering the early-exit DNN and the distortion classifier, where the edge works with the cloud to perform an image classification. The experiment emulates three components, representing the end device, the intermediate (edge) device, and the cloud server. 
+The intermediate device and cloud server componentes are implemented using Python Flask framework (https://flask.palletsprojects.com/en/1.1.x).
+The edge client and the cloud server communicate through HTTP.
+
+We use a virtual network link between the edge server and the cloud, to emulate a communication through the Internet. We configure the network conditions on this link by using TC (http://lartc.org/manpages/tc.txt) and NETEM (https://wiki.linuxfoundation.org/networking/netem). Our experiments use different values of bandwidth and latency to analyze our proposal considering different cloud locations. The iPerf tool provides free servers geographically distributed around the world. The list of these free iPerf servers is available in the following link: https://iperf.fr/iperf-servers.php. We define the bandwidth values by measuring the throughput between our physical machine, in Rio de Janeiro (BR), and three iPerf servers. We use iPerf3 and ping to obtain, respectively, throughput and latency values.
+The Table below shows the three chosen iPerf server and their bandwidth and latency (i.e., RTT) values.  
+
+|   Server   |  City  |    Bandwidth    |  RTT  |
+| :---:         |     :---:      |          :---: |     :---:   |
+| speedtest.iveloz.net.br   | São Paulo (BR)     | 93.6 Mbps   |       10 ms  |
+| iperf.scottlinux.com     | Fremont (US)       | 73.3 Mbps      |       180 ms    |
+| bouygues.testdebit.info     | Paris (FR)       | 60.0 Mbps      |       216 ms    |
+
+To obtain the throughput and latency values, follow the procedures below.
+1. Use the iPerf3 tool to obtain the throughput value for each server in the Table, using the command:  ```iperf3 -c [SERVER] -p [PORT] -T [DURATION]```. For more information about this command, it is detailed in https://iperf.fr/iperf-doc.php
+2. Use the ping tool to obtain the throughput value for each server in the Table, using the command:  ```ping [SERVER] -w [DURATION]```.
+
+In this paper, we obtain the throughput and latency values for each server in the Table above. However, you can choose the iPerf server according to your needs. 
+
+We can initialize the intermediate device and cloud server components just by running the bash script "run_robust_quality_early_dnn.sh" as follows: 
+```
+sudo bash run_robust_quality_early_dnn.sh
+```
+This bash script runs the following procedures:
+1. Install Docker, following the instructions from https://docs.docker.com/engine/install/debian/ .
+2. Download the wheels of OpenCV, Pytorch, Torchvision.
+3. Build the docker image by running the dockerfile ```DockerfileEdge```.
+4. Run the Docker container as follows: ```docker run -p 5000:5000 --cap-add=NET_ADMIN --cpus="1.0" -dit recog_container:apiEdge```
+   - p: makes available a container's port to the host
+   - cap-add provides Linux capabilities. In this case, ```--cap-add=NET_ADMIN``` provides networks capabilities. More specifically, this parameter enables us to use TC and Netem commands to emulate the network conditions between edge and cloud.   
+   - cpus: limits the number of available cpu core. 
+   - dit: runs the docker in background and in the interactive mode.
+
+Since the intermediate container and the cloud component run in the same physical machine, we limit the number of CPU cores of the docker container, as shown before, and run the stress tool on it. It is important to emphasize that, when we run the basch script  bash run_robust_quality_early_dnn.sh, we have already installed the stress tool and run it, using the command: ```nohup stress --cpu 1 &``` 
+
+To start running the end-to-end latency, run the Python script, as follows: ```nohup python distortedEndNode_exp.py --distortion_type [DISTORTION_TYPE]```. The parameter ```distortion_type``` indicates the type of distortion you would like to evaluate. There are three options of distortion types available:
+* gaussian_blur
+* gaussian_noise
+* pristine
+
+
 ## Acknowledgments
 
-The codes in this repository are developed by Roberto Pacheco. This work was done in Grupo de Teleinformática e Automação at Universidade Federal do Rio de Janeiro (UFRJ).
+The codes in this repository are developed by Roberto Pacheco. This work was done in laboratory of Grupo de Teleinformática e Automação at Universidade Federal do Rio de Janeiro (UFRJ).
 This study was financed in part by the Coordenação de Aperfeiçoamento de Pessoal de Nível Superior - Brasil (CAPES). It was also supported by CNPq, FAPERJ Grants.
 
 Contact for more informations:
