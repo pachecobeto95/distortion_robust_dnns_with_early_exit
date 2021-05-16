@@ -93,14 +93,16 @@ To generate the composite dataset of Fourier spectrum for distorted images used 
      - "gaussian_noise" for noisy images;
      - "pristine" for pristine (i.e., high-quality) images.
    - root_path: indicates the path of pristine Caltech-256 dataset. If you have followed all the previous instructions correctly, the path of the Caltech-256 dataset is given by: ```./dataset/256_ObjectCategories```
-   - save_path: indicates the path to save the generated dataset to train the distortion classifier. If you have follow the instruction 1,  the path is given by ```./distortion_classifier_dataset```
+   - save_path: indicates the path to save the generated dataset to train the distortion classifier. If you have follow the instruction 1,  the path is given by ```./dataset/distortion_classifier_dataset```
 
 ### Training the distortion classifier
-We follow the procedures described by Collabar (https://github.com/CollabAR-Source/CollabAR-Code/blob/master/trainDisClassifer.py) to train the distortion classifier. Our training script is available in the following link: LINK. The distortion classifier consists of a convolutional neural network (CNN) and its CNN model can be found in the file ```FILE```. You need to provide the distorted datasets for training the distortion classifier model. If you follow the previous procedures, the path of the distorted datasets should be in ```FILE```. It is important to notice that our training script train the distortion classifier models only on the distortion levels, described above and used in the paper. You can change them when you are performing the task of generating the distorted datasets according to your nedd. Then, you will train the distortion classifier model for this new distortion levels.
+We follow the procedures described by Collabar (https://github.com/CollabAR-Source/CollabAR-Code/blob/master/trainDisClassifer.py) to train the distortion classifier. Our training script is available in the following link: https://github.com/pachecobeto95/distortion_robust_dnns_with_early_exit/blob/main/experiments/training_distortion_classifier.py. The distortion classifier consists of a convolutional neural network (CNN) and its CNN model can be found in the file ```./experiments/distortionNet.py```. You need to provide the distorted datasets for training the distortion classifier model. If you follow the previous procedures, the path of the distorted datasets should be in ```./dataset/distortion_classifier_dataset```. It is important to notice that our training script train the distortion classifier models only on the distortion levels, described above and used in the paper. You can change them when you are performing the task of generating the distorted datasets according to your nedd. Then, you will train the distortion classifier model for this new distortion levels.
 
 To train the distortion classifier, follow the procedure below:
 1. Change the current directory to the experiments directory. 
 2. Run the training script as follows: ```python training_distortion_classifier.py --dataset_path [DATASET_PATH] --model_path [MODEL_PATH]```
+   - dataset_path: indicates the distortion datasets path.  
+   - model_path: indicates the path to save the trained distortion classifier model.
 
 After running the training, the script will save the trained distortion classifier model in the current directory (./experiments/distortionNetV2.pth). 
 The trained distortion classifier model is available in: https://drive.google.com/file/d/1Ao1ikATJy-4bUrLsyUVy0JaRuVR5tc8f/view?usp=sharing
