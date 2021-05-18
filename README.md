@@ -86,7 +86,7 @@ After downloading the original and distorted Caltech-256 dataset, we can generat
 
 To generate the composite dataset of Fourier spectrum for distorted images used to train the distortion classifier, follow the procedures below. 
 1. Before running the script, you have already installed the required libraries on your virtual environment.
-2. Create a directory called "distortion_classifier_dataset" via: ``` mkdir ./distortion_classifier_dataset```.
+2. Create a directory called "distortion_classifier_dataset" via: ``` mkdir ./dataset/distortion_classifier_dataset```.
 3. Run the script as follows: ```python ./experiments/generate_distortion_classifier_dataset.py --distortion_type --root_path --save_path```.
    - distortion_type: indicates the type of distortion you would like to generate. There are three options of distortion types available.
      - "gaussian_blur" for blurred images;
