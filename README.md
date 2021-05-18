@@ -124,6 +124,14 @@ The link of the blur expert model contains the early-exit DNN with branches expe
 
 ![Early-exit DNN with expert branches](https://github.com/pachecobeto95/distortion_robust_dnns_with_early_exit/blob/main/imgs_read_me/robust_dnn_with_early_exit_alternative.png)
 
+To fine-tune the early-exit DNN for each distortion type, follow the procedures below:
+1. Change the current directory to the ```./experiment```
+2. Run the training script, as follows: ```python training_distortion_classifier.py --distortion_type --root_path --dataset_path```
+   - distortion_type: indicates the type of distortion you would like to fine-tune the branches, turning them into expert branches. 
+   - root_path: indicates the root_path, in which the files will be saved. If you follow the previous procedures, the root_path parameter is ```./experiments```.
+   - dataset_path: indicates the path to the original and pristine Caltech-256 dataset. If you follow the previous procedures, the dataset_path parameter is ```./dataset/256_ObjectCategories```.
+
+This training scripts saves the trained early-expert DNNs with expert branches for each distortion type into directory defined by the parameter root_path, such as ```./experiments```.
 
 ## Experiments
 At this stage, this section presents the experiments developed to evaluate our proposal -- early-exit DNN with expert branches -- considering the accuracy, offloading probability, and end-to-end latency. 
