@@ -141,7 +141,7 @@ def b_mobileNetInferenceEdgeEmulation(tensor, nr_samples_edge, nr_branch_2, nr_b
 
 	distortedModel.eval()
 	with torch.no_grad():
-		output, conf_list, infer_class = distortedModel.forwardEmulation(tensor.float(), p_tar_list=p_tar_list)	
+		output, conf_list, infer_class = distortedModel.forwardEmulation(tensor.float(), p_tar_list=p_tar_list)
 
 	return output, conf_list, infer_class
 
@@ -150,7 +150,7 @@ def b_mobileNetInferenceEdgeEmulation(tensor, nr_samples_edge, nr_branch_2, nr_b
 def dnnInferenceEmulation(fileImg, nr_branch_2, nr_branch_3, end_dist_type, distortion_lvl, robust):
 	url = "%s/api/cloud/cloudProcessingEmulation"%(config.URL_CLOUD)
 	image_bytes = fileImg.read()
-	device = torch.device("cpu")
+	device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 	tensor = transform_image(image_bytes).to(device)
 	img_np = np.array(Image.open(io.BytesIO(image_bytes)))
 	response_request = {"status": "ok"}

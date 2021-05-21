@@ -16,7 +16,7 @@ def init_b_mobilenet():
 	n_classes = 258
 	img_dim = 300
 	exit_type = None
-	device = 'cpu'
+	device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 	pretrained = False
 	n_branches = 3
 	distortion_classes = ["gaussian_blur", "gaussian_noise", "pristine"]
@@ -103,9 +103,9 @@ def inferenceTransformationDistortionClassifier(img_numpy):
 
 	img_pil = data_transformation(img_numpy)
 	img_fft = apply_fourier_transformation(img_pil)
+	device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-
-	return img_fft.to("cpu")
+	return img_fft.to(device)
 
 def select_distorted_model(pristineModel, blurModel, noiseModel, distortion_type, pristine_temp, blur_temp, noise_temp):
 	if ((distortion_type.item() == 0) or (distortion_type.item() == 1)):
@@ -154,12 +154,12 @@ class BranchesModelWithTemperature(nn.Module):
 
       return x, conf_list, None
 
-    def forwardEmulation(self, x, p_tar_list):
+    def forwardEmulation(self, x, p_tar_list, device):
       output_list, conf_list, class_list  = [], [], []
       for i, exitBlock in enumerate(self.model.exits):
         x = self.model.stages[i](x)
         output_branch = exitBlock(x)
-        output_branch =  self.temperature_scale(output_branch, i)
+        output_branch =  self.temperature_scale(output_branch, i, device)
         conf, infered_class = torch.max(self.softmax(output_branch), 1)
 
         if (conf.item() > p_tar_list[i]):
@@ -174,14 +174,14 @@ class BranchesModelWithTemperature(nn.Module):
 
 
       
-    def temperature_scale(self, logits, i):
+    def temperature_scale(self, logits, i, device):
         """
         Perform temperature scaling on logits
         """
         # Expand temperature to match the size of logits
         
         temperature = nn.Parameter(torch.from_numpy(np.array([self.temperature[i]]))).unsqueeze(1).expand(logits.size(0), logits.size(1))
-        return logits / temperature
+        return logits / temperature.to(device)
 
 
 def compute_p_tar_list(nr_samples_edge, nr_branch_2, nr_branch_3):
