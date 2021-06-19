@@ -77,7 +77,7 @@ def starterChannel(datasetPath, nr_imgs=50):
 		sendImg(url, filePath)
 
 def sendNetworkConfCloud(bandwidth, latency):
-	url = "http://0.0.0.0:3000/api/cloud/cloud_update_network_config"
+	url = "http://3.101.81.87:3000/api/cloud/cloud_update_network_config"
 	data_dict = {"bandwidth": bandwidth, "latency": latency}
 	status = True
 	while status:
@@ -91,7 +91,7 @@ def sendDistortedImage(test_loader, distortedData, distortion, distortion_type, 
 	dataset_dir_list = os.listdir(datasetPath)
 
 	nr_samples_edge_branch2, nr_samples_edge_branch3 = computeNrEdge(distortedData, len(dataset_dir_list), distortion_lvl)
-
+	print(nr_samples_edge_branch2, nr_samples_edge_branch3)
 	for i, img in enumerate(dataset_dir_list, 1):
 		print(i, len(dataset_dir_list))
 		filePath = os.path.join(datasetPath, img)
@@ -152,14 +152,17 @@ distortion = imgConverter.applyDistortion()
 datasetPath = os.path.join(".", "dataset", "distorted_dataset", args.distortion_type)
 savePath = os.path.join(".", "inference_time_result_end_device")
 
-latency_list = [5, 90, 108]
-bandwidth_list = [93.6, 73.3, 60]
-city_list = ["sp", "fremont", "paris"]
+#latency_list = [5, 90, 108]
+#bandwidth_list = [93.6, 73.3, 60]
+#city_list = ["sp", "fremont", "paris"]
+latency_list = [1]
+bandwidth_list = [1]
+city_list = ["aws"]
 
 for bandwidth, latency, city  in zip(bandwidth_list, latency_list, city_list):
-	sendNetworkConfEdge(bandwidth, latency, city)
-	sendNetworkConfCloud(bandwidth, latency)
-	starterChannel(datasetPath)
+	#sendNetworkConfEdge(bandwidth, latency, city)
+	#sendNetworkConfCloud(bandwidth, latency)
+	#starterChannel(datasetPath)
 	inferenceTimeExp(test_loader, bandwidth, latency, df_data, distortion, args.distortion_type, distortion_list, datasetPath, savePath, robust=True)
 	inferenceTimeExp(test_loader, bandwidth, latency, df_standard, distortion, args.distortion_type, distortion_list, datasetPath, savePath, robust=False)
 	time.sleep(30)
