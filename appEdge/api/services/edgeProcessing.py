@@ -17,7 +17,7 @@ from .mobilenet import B_MobileNet
 from torch.utils.data import Dataset, DataLoader, random_split, SubsetRandomSampler
 
 
-distortion_classifier = loadDistortionClassifier()
+distortion_classifier = loadDistortionClassifier().cuda()
 distorted_model_list, distortion_classes = init_b_mobilenet()
 distorted_temp_list = read_temperature()
 net_config = NetworkConfiguration()
@@ -60,11 +60,11 @@ def dnnInference(fileImg, end_dist_type, distortion_lvl, robust):
 	return response_request
 
 
-def distortionClassifierInference(img, distortionClassifierModel):
+def distortionClassifierInference(img, distortionClassifierModel, device):
 	softmax = torch.nn.Softmax(dim=1)
 	img_fft = inferenceTransformationDistortionClassifier(img)
 
-	distortion_output = distortion_classifier(img_fft)
+	distortion_output = distortion_classifier(img_fft).to(device)
 	_, distortion_type = torch.max(softmax(distortion_output), 1)
 
 	return distortion_type
@@ -91,10 +91,10 @@ def sendToCloud(url, feature_map, conf_list, distortion_type):
 	partitioning_layer (int): partitioning layer decided by the optimization method. 
 	"""
 
-	data = {'feature': feature_map.detach().numpy().tolist(), "distortion_type": distortion_type, "conf": conf_list}
+	data = {'feature': feature_map.detach().cpu().numpy().tolist(), "distortion_type": distortion_type, "conf": conf_list}
 
 	try:
-		r = requests.post(url, json=data, timeout=1000)
+		r = requests.post(url, json=data, timeout=30)
 	except requests.exceptions.ConnectTimeout:
 		return {"status": "error"}
 
@@ -106,9 +106,9 @@ def sendToCloud(url, feature_map, conf_list, distortion_type):
 
 def saveInferenceTime(inference_time, distortion_class, end_dist_type, distortion_lvl):
 
-	result = {"inference_time": inference_time, "distortion_type": distortion_class,
-	"distortion_lvl": distortion_lvl, "bandwidth": net_config.bandwidth, "latency":net_config.latency, "city":net_config.city}
-
+	#result = {"inference_time": inference_time, "distortion_type": distortion_class,
+	#"distortion_lvl": distortion_lvl, "bandwidth": net_config.bandwidth, "latency":net_config.latency, "city":net_config.city}
+	result = {"inference_time": inference_time, "distortion_type": distortion_class, "distortion_lvl": distortion_lvl}
 	result_path = os.path.join(config.RESULTS_INFERENCE_TIME_EDGE, "%s_inference_time_%s.csv"%(dist_prop, end_dist_type))
 
 	if (not os.path.exists(result_path)):
@@ -124,12 +124,13 @@ def saveInferenceTime(inference_time, distortion_class, end_dist_type, distortio
 
 def get_nr_samples_edge(end_dist_type, distortion_lvl, dist_prop):
 	nr_samples_edge = 0
-	result_path = os.path.join(config.RESULTS_INFERENCE_TIME_EDGE, "%s_inference_time_emulation_%s.csv"%(dist_prop, end_dist_type))
+	result_path = os.path.join(config.RESULTS_INFERENCE_TIME_EDGE, "%s_inference_time_%s.csv"%(dist_prop, end_dist_type))
 
 
 	if (os.path.exists(result_path)):
 		df_inference_time = pd.read_csv(result_path)
-		df_current = df_inference_time[(df_inference_time.latency==net_config.latency) & (df_inference_time.bandwidth==net_config.bandwidth) & (df_inference_time.distortion_lvl == distortion_lvl)]
+		#df_current = df_inference_time[(df_inference_time.latency==net_config.latency) & (df_inference_time.bandwidth==net_config.bandwidth) & (df_inference_time.distortion_lvl == distortion_lvl)]
+		df_current = df_inference_time[df_inference_time.distortion_lvl == distortion_lvl]
 		nr_samples_edge = len(df_current.index)
 
 	return nr_samples_edge
@@ -161,7 +162,7 @@ def dnnInferenceEmulation(fileImg, nr_branch_2, nr_branch_3, end_dist_type, dist
 
 	start = time.time()
 	if (robust):
-		distortion_type = distortionClassifierInference(img_np, distortion_classifier).item()
+		distortion_type = distortionClassifierInference(img_np, distortion_classifier, device).item()
 	else:
 		distortion_type = -1
 
@@ -179,9 +180,9 @@ def dnnInferenceEmulation(fileImg, nr_branch_2, nr_branch_3, end_dist_type, dist
 def saveInferenceTimeEmulation(inference_time, distortion_class, end_dist_type, distortion_lvl, dist_prop):
 	
 	result = {"inference_time": inference_time, "distortion_type": distortion_class,
-	"distortion_lvl": distortion_lvl, "bandwidth": net_config.bandwidth, "latency": net_config.latency, "city": net_config.city}
+	"distortion_lvl": distortion_lvl}
 
-	result_path = os.path.join(config.RESULTS_INFERENCE_TIME_EDGE, "%s_inference_time_emulation_%s.csv"%(dist_prop, end_dist_type))
+	result_path = os.path.join(config.RESULTS_INFERENCE_TIME_EDGE, "%s_inference_time_%s.csv"%(dist_prop, end_dist_type))
 
 	if (not os.path.exists(result_path)):
 		df = pd.DataFrame()

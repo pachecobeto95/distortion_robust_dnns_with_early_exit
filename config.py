@@ -32,7 +32,7 @@ BRANCHES_POSITIONS = [2, 5, 7]
 N_BRANCHES = 3
 
 #Cloud Configuration 
-HOST_CLOUD = "146.164.69.144"
+HOST_CLOUD = "3.101.138.154"
 PORT_CLOUD = 3000
 URL_CLOUD = "http://%s:%s"%(HOST_CLOUD, PORT_CLOUD)
 SAVE_IMAGES_PATH_CLOUD = os.path.join(DIR_NAME, "appCloud", "images")
@@ -65,4 +65,4 @@ dataset_path = os.path.join(DIR_NAME, "dataset", "256_ObjectCategories")
 
 #CURRENT_DISTORTION_TYPE = "pristine"
 
-P_TAR = 0.8
+P_TAR = 0.9
