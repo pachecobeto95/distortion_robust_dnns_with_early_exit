@@ -1,4 +1,4 @@
-import os, pickle, requests, sys, config, time
+import os, pickle, requests, sys, config, time, io
 import numpy as np, json
 import torchvision.models as models
 import torch
@@ -7,6 +7,15 @@ import torchvision.transforms as transforms
 from .mobilenet import B_MobileNet
 from PIL import Image, ImageOps
 import pandas as pd
+
+def transform_image(image_bytes):
+	my_transforms = transforms.Compose([transforms.Resize(330),
+		transforms.CenterCrop(300),
+		transforms.ToTensor(),
+		transforms.Normalize([0.457342265910642, 0.4387686270106377, 0.4073427106250871], [0.26753769276329037, 0.2638145880487105, 0.2776826934044154])])
+
+	image = Image.open(io.BytesIO(image_bytes))
+	return my_transforms(image).unsqueeze(0)
 
 def load_model(model, modelPath, device):
 	model.load_state_dict(torch.load(modelPath, map_location=device)["model_state_dict"])	
@@ -21,7 +30,7 @@ def init_b_mobilenet():
 	n_branches = 3
 	distortion_classes = ["gaussian_blur", "gaussian_noise", "pristine"]
 
-
+	print("Run")
 	b_mobilenet_pristine = B_MobileNet(n_classes, pretrained, n_branches, img_dim, exit_type, device)
 	b_mobilenet_blur = B_MobileNet(n_classes, pretrained, n_branches, img_dim, exit_type, device)
 	b_mobilenet_noise = B_MobileNet(n_classes, pretrained, n_branches, img_dim, exit_type, device)
@@ -30,7 +39,11 @@ def init_b_mobilenet():
 	blur_model = load_model(b_mobilenet_blur, config.EDGE_BLUR_MODEL_PATH, device)
 	noise_model = load_model(b_mobilenet_noise, config.EDGE_NOISE_MODEL_PATH, device)
 
-	return [blur_model, noise_model, pristine_model], distortion_classes
+	distorted_models_dict = {"pristine": pristine_model,
+	"gaussian_blur": blur_model,
+	"gaussian_noise": noise_model}
+
+	return [blur_model, noise_model, pristine_model], distorted_models_dict, distortion_classes
 
 def read_temperature():
 	df_pristine = pd.read_csv("./appEdge/api/services/models/temperature_calibration_pristine_b_mobilenet_21.csv")
