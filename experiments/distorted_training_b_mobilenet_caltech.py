@@ -17,7 +17,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 import torchvision.datasets.voc as voc
 from torch.utils.data import Dataset, DataLoader, random_split, SubsetRandomSampler
 from pthflops import count_ops
-from mobilenet import B_MobileNet
+from mobileNet import B_MobileNet
 import cv2
 from PIL import Image
 import argparse
