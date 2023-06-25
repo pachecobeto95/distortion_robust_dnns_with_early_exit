@@ -50,6 +50,31 @@ class AddGaussianBlur(object):
 		return self.__class__.__name__ + '(mean={0}, std={1})'.format(self.mean, self.std)
 
 
+class AddBlurNoise(object):
+  def __init__(self, blur_list, noise_list, mean=0.):
+    self.blur_list = blur_list
+    self.noise_list = noise_list
+
+  def __call__(self, img):
+    
+    r = np.random.choice(2, 1)[0]
+
+    if(r == 0):
+      image = np.array(img)
+      self.std = self.blur_list[np.random.choice(len(self.blur_list), 1)[0]]
+      blur = cv2.GaussianBlur(image, (4*self.std+1, 4*self.std+1), self.std, None, self.std, cv2.BORDER_CONSTANT)
+      return Image.fromarray(blur) 
+
+    else:
+      image = np.array(img)
+      self.std = self.noise_list[np.random.choice(len(self.noise_list), 1)[0]]
+      noise_img = image + np.random.normal(0, self.std, (image.shape[0], image.shape[1], image.shape[2]))
+      return Image.fromarray(np.uint8(noise_img)) 
+
+
+  def __repr__(self):
+    return self.__class__.__name__ + '(mean={0}, std={1})'.format(self.mean, self.std)
+
 
 def save_idx(train_idx, val_idx, savePath):
   data = np.array([train_idx, val_idx])
@@ -174,9 +199,9 @@ def evalBranches(model, val_loader, criterion, n_branches, epoch, device):
 
 parser = argparse.ArgumentParser(description='Evaluating DNNs perfomance using distorted image: blur ou gaussian noise')
 parser.add_argument('--distortion_type', type=str, default="pristine", 
-  choices=['pristine', 'gaussian_blur','gaussian_noise'], help='Distortion Type (default: pristine)')
+  choices=['pristine', 'gaussian_blur','gaussian_noise', "blur_noise"], help='Distortion Type (default: pristine)')
 parser.add_argument('--root_path', type=str, help='Path to the pristine Caltech256-dataset')
-parser.add_argument('--dataset_path', type=str, help='Path to the Caltech-256 dataset')
+#parser.add_argument('--dataset_path', type=str, help='Path to the Caltech-256 dataset')
 
 args = parser.parse_args()
 
@@ -185,7 +210,7 @@ args = parser.parse_args()
 root_dir = args.root_path
 seed = 42
 distortion_type = "gaussian_blur"
-dataset_path = args.dataset_path
+dataset_path = os.path.join(".", "datasets", "256_ObjectCategories")
 batch_size = 32
 model_name = "mobilenet"
 pretrained = True
@@ -195,12 +220,16 @@ model_id = 21
 mean, std = [0.457342265910642, 0.4387686270106377, 0.4073427106250871],[0.26753769276329037, 0.2638145880487105, 0.2776826934044154]
 
 
-if (distortion_type == "gaussian_blur"):
-  distortion_list = [1, 2, 3, 4, 5]
-  distortion_app = AddGaussianBlur
-else:
-  distortion_list = [5, 10, 20, 30, 40]
-  distortion_app = AddGaussianNoise
+#if (distortion_type == "gaussian_blur"):
+#  distortion_list = [1, 2, 3, 4, 5]
+#  distortion_app = AddGaussianBlur
+#else:
+#  distortion_list = [5, 10, 20, 30, 40]
+#  distortion_app = AddGaussianNoise
+
+distortion_app = AddGaussianNoise
+blur_list = [1, 2, 3, 4, 5]
+noise_list = [5, 10, 20, 30, 40]
 
 root_dir = os.path.join(root_dir, model_name, dataset_name)
 
@@ -215,7 +244,7 @@ np.random.seed(seed)
 torch.manual_seed(seed)
 
 distorted_transf_train = transforms.Compose([transforms.Resize((300, 300)),
-                                             transforms.RandomApply([distortion_app(distortion_list, 0)], p=0.5),
+                                             transforms.RandomApply([distortion_app(blur_list, noise_list, 0)], p=0.5),
                                              transforms.RandomChoice([
                                                                       transforms.ColorJitter(brightness=(0.80, 1.20)),
                                                                       transforms.RandomGrayscale(p = 0.25)]),
