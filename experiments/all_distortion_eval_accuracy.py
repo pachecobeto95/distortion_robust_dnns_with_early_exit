@@ -202,7 +202,8 @@ else:
 
 root_dir = os.path.join(root_dir, model_name, dataset_name)
 
-model_save_path = os.path.join(".", "%s_distorted_model_%s_%s_%s.pth"%(distortion_type_model, model_name, dataset_name, model_id))
+#model_save_path = os.path.join(".", "%s_distorted_model_%s_%s_%s.pth"%(distortion_type_model, model_name, dataset_name, model_id))
+model_save_path = os.path.join(".", "%s_ee_model_mobilenet_3_branches_id_1.pth"%(distortion_type_model))
 savePath_idx_dataset = os.path.join(".", "save_idx_b_%s_%s_%s.npy"%(model_name, dataset_name, model_id))
 inference_data_path = os.path.join(".", "luis_results.csv")
 
@@ -248,5 +249,5 @@ for distortion_lvl in distortion_list:
       batch_size, savePath_idx_dataset)
 
 
-  result = evalDistortedModel(branchynet, val_loader, n_branches, dist_type_model, dist_type_data, distortion_lvl, device)
+  result = evalDistortedModel(branchynet, val_loader, n_branches, args.distortion_type_model, distortion_type_data, distortion_lvl, device)
   save_result(result, inference_data_path)
