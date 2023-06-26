@@ -236,7 +236,8 @@ root_dir = os.path.join(root_dir, model_name, dataset_name)
 model_save_path = os.path.join(root_dir, "%s_distorted_model_%s_%s_%s.pth"%(distortion_type, model_name, dataset_name, model_id))
 #savePath_idx_dataset = os.path.join(root_dir, "save_idx_b_%s_%s_%s.npy"%(model_name, dataset_name, model_id))
 savePath_idx_dataset = os.path.join(".", "save_idx_b_%s_%s_%s.npy"%(model_name, dataset_name, model_id))
-pristine_model_path = os.path.join(root_dir, "pristine_model_b_mobilenet_caltech_21.pth")
+#pristine_model_path = os.path.join(root_dir, "pristine_model_b_mobilenet_caltech_21.pth")
+pristine_model_path = os.path.join(".", "pristine_model_b_mobilenet_caltech_21.pth")
 df_history_save_path = os.path.join(root_dir, "history_distorted_%s_%s_%s_%s.csv"%(distortion_type, model_name, dataset_name, model_id))
 
 
