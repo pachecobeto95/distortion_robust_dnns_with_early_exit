@@ -21,6 +21,7 @@ from mobileNet import B_MobileNet
 import cv2
 from PIL import Image
 import argparse
+from tqdm import tqdm
 
 class AddGaussianNoise(object):
   def __init__(self, distortion_list, mean=0.):
@@ -130,8 +131,8 @@ def trainBranches(model, train_loader, optimizer, criterion, n_branches, epoch, 
   train_acc_dict = {i: [] for i in range(1, (n_branches+1)+1)}
   model.train()
 
-  for i, (data, target) in enumerate(train_loader, 1):
-    print("Batch: %s/%s"%(i, len(train_loader)))
+  for i, (data, target) in enumerate(tqdm(train_loader), 1):
+    #print("Batch: %s/%s"%(i, len(train_loader)))
     data, target = data.to(device), target.long().to(device)
 
     output_list, conf_list, class_list = model(data)
