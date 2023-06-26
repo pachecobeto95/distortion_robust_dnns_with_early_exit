@@ -311,7 +311,7 @@ while 1:
   result.update(evalBranches(branchynet, val_loader, criterion, n_branches, epoch, device))
 
   df = df.append(pd.Series(result), ignore_index=True)
-  df.to_csv(history_save_path)
+  #df.to_csv(history_save_path)
 
   if (result["val_loss"] < best_val_loss):
     best_val_loss = result["val_loss"]
