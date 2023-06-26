@@ -136,7 +136,7 @@ def run_inference_data(model, val_loader, n_branches, dist_type_model, dist_type
     for i, (data, target) in enumerate(tqdm(val_loader), 1):
       data, target = data.to(device), target.long().to(device)
 
-      conf_branches, infered_class_branches = model(data)
+      _, conf_branches, infered_class_branches = model(data)
 
       conf_branches_list.append([conf.item() for conf in conf_branches])
       infered_class_branches_list.append([inf_class.item() for inf_class in infered_class_branches])    
