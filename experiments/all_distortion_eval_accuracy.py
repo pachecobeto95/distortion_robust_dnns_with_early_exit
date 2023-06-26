@@ -126,6 +126,13 @@ def load_caltech(root_path, transf_train, transf_valid, batch_size,savePath_idx_
   return trainLoader, valLoader
 
 
+def save_result(result, save_path):
+  df = pd.DataFrame(np.array(list(result.values())).T, columns=list(result.keys()))
+  df.to_csv(save_path, mode='a', header=not os.path.exists(save_path) )
+
+  
+
+
 def run_inference_data(model, val_loader, n_branches, dist_type_model, dist_type_data, distortion_lvl, device):
   running_loss = []
   conf_branches_list, infered_class_branches_list, target_list, correct_list, entropy_list = [], [], [], [], []
