@@ -246,7 +246,7 @@ for distortion_lvl in distortion_list:
 
 
   train_loader, val_loader = load_caltech(dataset_path, distorted_transf_train, distorted_transf_valid, 
-      batch_size, savePath_idx_dataset)
+      1, savePath_idx_dataset)
 
 
   result = evalDistortedModel(branchynet, val_loader, n_branches, args.distortion_type_model, distortion_type_data, distortion_lvl, device)
