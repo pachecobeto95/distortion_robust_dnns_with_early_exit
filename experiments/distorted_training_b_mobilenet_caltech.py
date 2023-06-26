@@ -256,7 +256,7 @@ distorted_transf_train = transforms.Compose([transforms.Resize((300, 300)),
 distorted_transf_valid = transforms.Compose([
                                              transforms.Resize(330), 
                                              transforms.CenterCrop(300),
-                                             transforms.RandomApply([distortion_app(distortion_list, 0)], p=0.5), 
+                                             transforms.RandomApply([distortion_app(blur_list, noise_list, 0)], p=0.5), 
                                              transforms.ToTensor(),
                                              transforms.Normalize(mean = mean, std = std),])
 
