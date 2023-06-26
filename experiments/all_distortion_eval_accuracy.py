@@ -144,7 +144,7 @@ def run_inference_data(model, val_loader, n_branches, dist_type_model, dist_type
       target_list.append(target.item())
 
 
-      del data, target, conf_list, class_list
+      del data, target, conf_branches, infered_class_branches
       torch.cuda.empty_cache()
 
   conf_branches_list = np.array(conf_branches_list)
