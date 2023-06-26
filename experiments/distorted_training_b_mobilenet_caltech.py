@@ -227,7 +227,7 @@ mean, std = [0.457342265910642, 0.4387686270106377, 0.4073427106250871],[0.26753
 #  distortion_list = [5, 10, 20, 30, 40]
 #  distortion_app = AddGaussianNoise
 
-distortion_app = AddGaussianNoise
+distortion_app = AddBlurNoise
 blur_list = [1, 2, 3, 4, 5]
 noise_list = [5, 10, 20, 30, 40]
 
