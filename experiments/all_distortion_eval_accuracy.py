@@ -51,6 +51,17 @@ class AddGaussianBlur(object):
 		return self.__class__.__name__ + '(mean={0}, std={1})'.format(self.mean, self.std)
 
 
+class AddPristine(object):
+  def __init__(self, distortion_lvl, mean=0.):
+    self.distortion_lvl = distortion_lvl
+
+  def __call__(self, img):
+    return img 
+
+  def __repr__(self):
+    return self.__class__.__name__ + '(mean={0}, std={1})'.format(self.mean, self.std)
+
+
 class AddBlurNoise(object):
   def __init__(self, blur_list, noise_list, mean=0.):
     self.blur_list = blur_list
@@ -130,7 +141,7 @@ def save_result(result, save_path):
   df = pd.DataFrame(np.array(list(result.values())).T, columns=list(result.keys()))
   df.to_csv(save_path, mode='a', header=not os.path.exists(save_path) )
 
-  
+
 
 
 def run_inference_data(model, val_loader, n_branches, dist_type_model, dist_type_data, distortion_lvl, device):
@@ -199,13 +210,12 @@ if (distortion_type_data == "gaussian_blur"):
   distortion_list = [1, 2, 3, 4, 5]
   distortion_app = AddGaussianBlur
 
-else:
+elif(distortion_type_data == "gaussian_noise"):
   distortion_list = [5, 10, 20, 30, 40]
   distortion_app = AddGaussianNoise
-#else:
-#  blur_list, noise_list = [1, 2, 3, 4, 5], [5, 10, 20, 30, 40]
-#  distortion_list = [blur_list, noise_list]
-#  distortion_app = AddBlurNoise
+else:
+  distortion_list = [0]
+  distortion_app = AddPristine
 
 root_dir = os.path.join(root_dir, model_name, dataset_name)
 
