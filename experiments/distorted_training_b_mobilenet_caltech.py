@@ -288,8 +288,8 @@ criterion = nn.CrossEntropyLoss()
 for param in branchynet.stages.parameters():
   param.requires_grad = False
 
-optimizer = optim.Adam([{'params': branchynet.exits.parameters(), 'lr': lr[0]},
-                        {'params': branchynet.fully_connected.parameters(), 'lr': lr[0]}], weight_decay=weight_decay)
+optimizer = optim.Adam([{'params': branchynet.exits.parameters(), 'lr': lr[1]},
+                        {'params': branchynet.fully_connected.parameters(), 'lr': lr[1]}], weight_decay=weight_decay)
 
 
 scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, 10, eta_min=0, last_epoch=-1)
