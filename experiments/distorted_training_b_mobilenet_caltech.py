@@ -277,7 +277,7 @@ weight_decay = 0.0005
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-branchynet = B_MobileNet(n_classes, pretrained, n_branches, img_dim, exit_type, device)
+branchynet = B_MobileNet(n_classes, False, n_branches, img_dim, exit_type, device)
 branchynet.load_state_dict(torch.load(pristine_model_path)["model_state_dict"])
 branchynet = branchynet.to(device)
 
