@@ -249,5 +249,5 @@ for distortion_lvl in distortion_list:
       1, savePath_idx_dataset)
 
 
-  result = evalDistortedModel(branchynet, val_loader, n_branches, args.distortion_type_model, distortion_type_data, distortion_lvl, device)
+  result = run_inference_data(branchynet, val_loader, n_branches, args.distortion_type_model, distortion_type_data, distortion_lvl, device)
   save_result(result, inference_data_path)
